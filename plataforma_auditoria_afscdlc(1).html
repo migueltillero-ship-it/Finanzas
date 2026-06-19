@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Auditoría Contable y Financiera | AFSCDLC</title>
+    <link rel="icon" type="image/png" href="af_logo_oficial.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            red: '#991B1B',
+                            darkred: '#7F1D1D',
+                            blue: '#0F172A',
+                            lightblue: '#1E293B',
+                            light: '#F8FAFC',
+                            border: '#E2E8F0',
+                            text: '#334155',
+                            muted: '#64748B',
+                            emerald: '#047857',
+                            amber: '#B45309'
+                        }
+                    },
+                    boxShadow: {
+                        'premium': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'premium-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04)',
+                        'glow-red': '0 0 15px rgba(153, 27, 27, 0.25)',
+                        'glow-emerald': '0 0 15px rgba(4, 120, 87, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Premium Cards */
+        .forensic-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.02);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        .forensic-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 10px 20px rgba(0,0,0,0.04);
+            transform: translateY(-2px);
+        }
+
+        /* Modern Tables */
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .data-table th {
+            background-color: #F8FAFC;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            color: #64748B;
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            border-top: 1px solid #E2E8F0;
+        }
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #F1F5F9;
+            color: #334155;
+            vertical-align: middle;
+        }
+        .data-table tr:hover td { background-color: #F8FAFC; }
+
+        /* Tabs Animation */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Accordion */
+        .acc-header { cursor: pointer; user-select: none; }
+        .acc-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .acc-content.open { max-height: 1200px; }
+        .acc-icon { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Typography */
+        .number-font {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        /* Hero Gradient Mask */
+        .hero-mask {
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Range Slider (Simulador) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #047857;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.12);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #E2E8F0;
+            border-radius: 3px;
+        }
+
+        /* Timeline connector */
+        .timeline-line {
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background: #E2E8F0;
+            z-index: 0;
+        }
+
+        /* Live status pulse dot */
+        .pulse-dot {
+            position: relative;
+        }
+        .pulse-dot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            animation: ping 1.8s cubic-bezier(0,0,0.2,1) infinite;
+            background: currentColor;
+            opacity: 0.6;
+        }
+        @keyframes ping {
+            75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+    </style>
+
+    <!-- MOTOR DE DATOS CENTRAL (Data-Driven Architecture) -->
+    <script>
+        const AFSC_DATA = {
+            saldo_operativo: 120.54,
+            caja_chica: 0.00,
+            burn_rate_promedio: 59500,
+            ingresos_historico: [95670, 60398, 48850, 22130, 59615],
+            egresos_historico: [76166, 76188, 57536, 28396, 53079],
+            renta_mensual: 30000,
+            honorarios_sin_cfdi: 141339.63,
+            riesgo_cfdi_pct: 86.5,
+            pasivos_totales: 385207,
+            costo_mudanza: 32650
+        };
+    </script>
+</head>
+<body class="pb-24 relative">
+
+    <!-- Banner de estado en vivo -->
+    <div id="alertBanner" class="bg-brand-red text-white text-xs font-bold uppercase tracking-widest py-2 px-4 text-center relative z-50 flex items-center justify-center gap-3 transition-colors duration-500">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+        </span>
+        <span id="alertText">DICTAMEN FORENSE NIVEL 3: RIESGO PENAL Y QUIEBRA MATERIAL CONFIRMADA</span>
+    </div>
+
+    <!-- Imagen de Cabecera con Degradado -->
+    <div class="relative w-full h-[250px] md:h-[350px] overflow-hidden bg-brand-blue">
+        <img src="Gemini_Generated_Image_4gzyyb4gzyyb4gzy.png" alt="Documento Oficial AFSCDLC" class="w-full h-full object-cover object-[center_30%] hero-mask opacity-90" onerror="this.style.display='none';">
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-light via-transparent to-transparent z-10"></div>
+    </div>
+
+    <!-- Header de Navegación (Sticky Pill) -->
+    <header class="sticky top-4 z-50 px-4 sm:px-6 lg:px-8 mt-[-3rem] md:mt-[-4rem]">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white/85 backdrop-blur-xl border border-brand-border rounded-2xl shadow-premium p-2 flex flex-col md:flex-row justify-between items-center gap-3">
+
+                <div class="flex items-center gap-3 pl-3">
+                    <div class="w-11 h-11 rounded-xl bg-brand-red flex items-center justify-center shadow-glow-red shrink-0 overflow-hidden p-1.5">
+                        <img src="af_logo_oficial.png" alt="Alliance Française San Cristóbal de Las Casas" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<span class=\'text-white font-serif font-bold italic text-xl\'>af</span>';">
+                    </div>
+                    <div>
+                        <h1 class="font-serif font-bold text-brand-blue text-sm md:text-base leading-none">Plataforma de Auditoría Contable y Financiera</h1>
+                        <p class="text-[10px] uppercase tracking-widest text-brand-muted font-bold mt-0.5">Alliance Française San Cristóbal de Las Casas · Ejercicio 2026</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center bg-slate-100 p-1.5 rounded-xl w-full md:w-auto overflow-x-auto no-scrollbar">
+                    <button onclick="switchTab('insolvencia')" id="btn-insolvencia" class="whitespace-nowrap px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-brand-darkred transition-all">1. Quiebra Técnica</button>
+                    <button onclick="switchTab('flujo')" id="btn-flujo" class="whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">2. Autopsia Bancaria</button>
+                    <button onclick="switchTab('pasivos')" id="btn-pasivos" class="whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">3. Riesgo Penal</button>
+                    <button onclick="switchTab('simulador')" id="btn-simulador" class="whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all"><i class="fa-solid fa-sliders mr-1.5"></i>4. Simulador</button>
+                    <button onclick="switchTab('cierre')" id="btn-cierre" class="whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">5. Plan de Cierre</button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+
+        <!-- ==========================================
+             TAB 1: INSOLVENCIA TÉCNICA
+             ========================================== -->
+        <div id="tab-insolvencia" class="tab-content active">
+            <div class="mb-10 max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-brand-red text-[10px] font-bold uppercase tracking-widest mb-4">
+                    <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                    Diagnóstico Estructural Confirmado
+                </div>
+                <h2 class="text-3xl md:text-4xl font-serif font-black text-brand-blue mb-4 leading-tight">La Realidad Matemática:<br>Quiebra Técnica Absoluta.</h2>
+                <p class="text-brand-text text-base leading-relaxed">
+                    La Alianza Francesa de San Cristóbal de Las Casas no atraviesa una crisis coyuntural, sino una <strong>inviabilidad estructural matemáticamente irreversible</strong>. Al cruzar la Balanza de Comprobación (Abril 2026) con los Estados de Cuenta BBVA (Ene-May 2026), se confirma que la institución ha cruzado el punto de no retorno: sin liquidez, sin patrimonio liquidable y operando bajo un esquema de simulación financiera.
+                </p>
+            </div>
+
+            <!-- Estado del Sistema en vivo -->
+            <div class="forensic-card p-5 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-l-brand-red">
+                <div class="flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                        <i class="fa-solid fa-satellite-dish text-slate-400 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Estado Operativo (Motor de Datos en Vivo)</p>
+                        <h3 id="sysStatus" class="text-xl font-black text-brand-red leading-tight">Analizando...</h3>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6 md:gap-10">
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Risk Score</p>
+                        <p class="text-lg font-black text-brand-blue number-font"><span id="riskScore">--</span><span class="text-xs text-slate-400 font-normal">/100</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Runway Liquidez</p>
+                        <p class="text-lg font-black text-brand-blue number-font" id="runway">--</p>
+                    </div>
+                    <div class="hidden md:block w-28">
+                        <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div id="riskBar" class="h-1.5 rounded-full bg-brand-red transition-all duration-1000" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hard Truth KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-10">
+                <div class="forensic-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-brand-blue"></div>
+                    <div class="absolute right-4 top-6 text-slate-100 group-hover:text-slate-200 transition-colors"><i class="fa-solid fa-building-columns text-5xl"></i></div>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2 relative z-10">Saldo Bancario BBVA</p>
+                    <h3 class="text-3xl font-black text-brand-blue number-font relative z-10 mt-1">$120.54<span class="text-sm font-normal text-slate-400 ml-1">MXN</span></h3>
+                    <p class="text-xs text-brand-red mt-3 font-medium relative z-10 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Al 03/Jun/2026</p>
+                    <div class="mt-3 h-8 w-full opacity-70 relative z-10"><canvas id="spark-saldo"></canvas></div>
+                </div>
+
+                <div class="forensic-card p-6 relative overflow-hidden border-red-100 bg-red-50/30">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-brand-red"></div>
+                    <p class="text-[10px] text-brand-red/70 font-bold uppercase tracking-wider mb-2">Fondo de Caja Chica</p>
+                    <h3 class="text-3xl font-black text-brand-red number-font mt-1">$0.00<span class="text-sm font-normal text-red-300 ml-1">MXN</span></h3>
+                    <p class="text-xs text-brand-red mt-3 font-bold flex items-center gap-1.5"><i class="fa-solid fa-ban"></i> Liquidez extinta</p>
+                </div>
+
+                <div class="forensic-card p-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Patrimonio Neto Real</p>
+                    <h3 class="text-2xl font-black text-amber-700 number-font mt-1">-$156,798</h3>
+                    <p class="text-xs text-slate-500 mt-3 flex items-center gap-1.5"><i class="fa-solid fa-book-open"></i> Balanza Abr '26</p>
+                </div>
+
+                <div class="forensic-card p-6 relative overflow-hidden border-orange-200 bg-orange-50/50">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+                    <p class="text-[10px] text-orange-700 font-bold uppercase tracking-wider mb-2">Valor de Remate (Activos)</p>
+                    <h3 class="text-3xl font-black text-orange-700 number-font mt-1">$343.93<span class="text-sm font-normal text-orange-400 ml-1">MXN</span></h3>
+                    <p class="text-[10px] leading-tight text-orange-900 mt-3 font-medium"><i class="fa-solid fa-dumpster-fire mr-1"></i> El mobiliario está depreciado al 99.85%. Venderlo no cubre ni el 1% de la deuda.</p>
+                </div>
+
+                <div class="forensic-card p-6 relative overflow-hidden bg-slate-900 text-white border-slate-800">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Riesgo SAT (Sin CFDI)</p>
+                    <h3 class="text-3xl font-black text-white number-font mt-1">86.5%</h3>
+                    <p class="text-xs text-slate-400 mt-3 flex items-center gap-1.5"><i class="fa-solid fa-handcuffs"></i> Defraudación técnica</p>
+                </div>
+            </div>
+
+            <!-- Timeline de Colapso -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                <div class="lg:col-span-2 forensic-card p-6 md:p-8">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h4 class="font-bold text-brand-blue text-lg">El Colapso del Modelo</h4>
+                            <p class="text-xs text-slate-500 mt-1">Caída del 76.9% en ingresos (Ene-Abr) vs costos fijos inamovibles.</p>
+                        </div>
+                    </div>
+                    <div class="h-64 relative w-full">
+                        <canvas id="chartDificit"></canvas>
+                    </div>
+                </div>
+
+                <div class="forensic-card p-6 bg-white">
+                    <h4 class="font-bold text-brand-blue mb-6 flex items-center gap-2"><i class="fa-solid fa-timeline text-slate-400"></i> Timeline de Colapso (2026)</h4>
+                    <div class="relative space-y-6">
+                        <div class="timeline-line"></div>
+
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 border-4 border-white shadow"></div>
+                            <div>
+                                <p class="text-xs font-mono text-emerald-700 font-bold">ENERO</p>
+                                <p class="text-sm font-bold text-brand-blue">Superávit Engañoso</p>
+                                <p class="text-xs text-slate-500 mt-1">Ingresos de $95k vs 89 cargos. El dinero entra y se pulveriza el mismo día en deudas atrasadas.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 border-4 border-white shadow"></div>
+                            <div>
+                                <p class="text-xs font-mono text-amber-700 font-bold">FEBRERO</p>
+                                <p class="text-sm font-bold text-brand-blue">Inicio de la Hemorragia</p>
+                                <p class="text-xs text-slate-500 mt-1">Ingresos caen 36%. El 16/Feb el saldo baja del mínimo permitido BBVA ($1,218).</p>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-6 h-6 rounded-full bg-brand-red flex items-center justify-center shrink-0 border-4 border-white shadow"></div>
+                            <div>
+                                <p class="text-xs font-mono text-brand-red font-bold">ABRIL</p>
+                                <p class="text-sm font-bold text-brand-blue">Ruptura Técnica</p>
+                                <p class="text-xs text-slate-500 mt-1">Ingresos de solo $22k. Cierre mensual en $5.40 pesos. Penalización bancaria activada.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 flex gap-4">
+                            <div class="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center shrink-0 border-4 border-white ring-1 ring-brand-red">
+                                <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-mono text-slate-500 font-bold">JUNIO (ACTUAL)</p>
+                                <p class="text-sm font-bold text-brand-red">Colapso Operacional</p>
+                                <p class="text-xs text-slate-500 mt-1">Saldo en $120.54. Imposibilidad matemática de pagar renta o liquidar mudanza.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cita institucional -->
+            <div class="forensic-card bg-brand-light p-6 md:p-8 flex flex-col relative overflow-hidden border-none shadow-inner">
+                <div class="absolute -right-4 -top-4 text-slate-200 text-8xl opacity-50"><i class="fa-solid fa-quote-right"></i></div>
+                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 mb-6 relative z-10"><i class="fa-solid fa-gavel"></i></div>
+                <p class="text-sm leading-relaxed mb-6 font-serif text-slate-700 relative z-10 italic max-w-3xl">
+                    "La AFSCDLC opera pagando $30,000 MXN mensuales de renta sin recibir factura, y liquidando honorarios docentes mediante micro-transferencias sin CFDI. Continuar en este local bajo estas condiciones no es resistencia, es negligencia financiera."
+                </p>
+                <div class="mt-auto border-t border-slate-200 pt-4 relative z-10">
+                    <p class="font-bold text-sm text-brand-blue">Dirección General</p>
+                    <p class="text-xs text-slate-500">Extracto del Libro II de Gobernanza</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 2: AUTOPSIA ESTADOS DE CUENTA
+             ========================================== -->
+        <div id="tab-flujo" class="tab-content">
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-widest mb-3">
+                        PDF BBVA Oficiales
+                    </div>
+                    <h2 class="text-3xl font-serif font-black text-brand-blue mb-2">Autopsia de la Cuenta 0186832806</h2>
+                    <p class="text-brand-text text-sm leading-relaxed">
+                        Desglose de la "Gestión por Urgencia". Evidencia matemática de cómo el dinero ingresa y se pulveriza inmediatamente en decenas de micro-abonos, generando penalizaciones por falta de liquidez.
+                    </p>
+                </div>
+                <div class="text-right bg-white px-5 py-3 border border-slate-200 rounded-xl shadow-sm min-w-[200px]">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Transacciones (Ene-May)</p>
+                    <p class="text-2xl font-black text-brand-blue number-font mt-1">353</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+
+                <!-- ENERO -->
+                <div class="forensic-card overflow-hidden">
+                    <div class="acc-header p-5 flex flex-col sm:flex-row sm:items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAcc('acc-ene')">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 text-center border-r border-slate-200 pr-4">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mes</p>
+                                <p class="text-xl font-black text-brand-blue">ENE</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Flujo Neto</p>
+                                <p class="text-base font-bold text-emerald-700 number-font">+$19,503.81</p>
+                            </div>
+                            <div class="hidden md:block pl-6 border-l border-slate-100">
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Ingresos vs Egresos</p>
+                                <p class="text-xs text-slate-600 number-font mt-0.5">$95,670 / $76,166</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end mt-4 sm:mt-0 w-full sm:w-auto gap-4">
+                            <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">139 Movimientos</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 text-slate-400 acc-icon-container">
+                                <i class="fa-solid fa-chevron-down acc-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="acc-ene" class="acc-content bg-slate-50">
+                        <div class="p-5 border-y border-slate-200">
+                            <div class="flex gap-4">
+                                <div class="w-1 bg-brand-blue rounded-full"></div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-brand-blue">Diagnóstico: El Espejismo del Primer Bimestre</h5>
+                                    <p class="mt-1 text-xs text-slate-600 leading-relaxed max-w-4xl">Enero mostró superávit por las anualidades. Sin embargo, se registraron <strong>89 cargos</strong>. El dinero entraba y se distribuía instantáneamente en deudas atrasadas (ej. "Pago quincena 2da Dic").</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table text-left">
+                                <tr><th class="w-24">Fecha</th><th>Concepto del Cargo (Salidas Críticas)</th><th class="text-right w-32">Monto MXN</th></tr>
+                                <tr><td>07/Ene</td><td class="font-medium">Renta (Parcial) al arrendador Valencia Argüello</td><td class="text-right text-brand-red number-font font-medium">-$5,000.00</td></tr>
+                                <tr><td>15/Ene</td><td class="font-medium">Honorarios C. Valdivieso (1era Ene + 2da Dic)</td><td class="text-right text-brand-red number-font font-medium">-$8,500.00</td></tr>
+                                <tr><td>19/Ene</td><td class="font-medium">Contabilidad (Berenice Diaz Aguilar)</td><td class="text-right text-brand-red number-font font-medium">-$2,601.08</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FEBRERO -->
+                <div class="forensic-card overflow-hidden">
+                    <div class="acc-header p-5 flex flex-col sm:flex-row sm:items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAcc('acc-feb')">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 text-center border-r border-slate-200 pr-4">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mes</p>
+                                <p class="text-xl font-black text-brand-blue">FEB</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Flujo Neto</p>
+                                <p class="text-base font-bold text-brand-red number-font">-$15,790.01</p>
+                            </div>
+                            <div class="hidden md:block pl-6 border-l border-slate-100">
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Ingresos vs Egresos</p>
+                                <p class="text-xs text-slate-600 number-font mt-0.5">$60,398 / $76,188</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end mt-4 sm:mt-0 w-full sm:w-auto gap-4">
+                            <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">80 Movimientos</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 text-slate-400 acc-icon-container">
+                                <i class="fa-solid fa-chevron-down acc-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="acc-feb" class="acc-content bg-slate-50">
+                        <div class="p-5 border-y border-slate-200">
+                            <div class="flex gap-4">
+                                <div class="w-1 bg-orange-500 rounded-full"></div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-brand-blue">Diagnóstico: Inicio de la Hemorragia</h5>
+                                    <p class="mt-1 text-xs text-slate-600 leading-relaxed max-w-4xl">Ingresos caen 36%. El 1 de feb el saldo sufre un desplome brutal (-$22,500 en un día). Comienzan a aparecer decenas de cargos rotulados "Abono a cuenta" indicando imposibilidad de pagar nóminas completas.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table text-left">
+                                <tr><th class="w-24">Fecha</th><th>Concepto del Cargo (Salidas Críticas)</th><th class="text-right w-32">Monto MXN</th></tr>
+                                <tr><td>09/Feb</td><td class="font-medium">Renta fraccionada (Valencia Argüello)</td><td class="text-right text-brand-red number-font font-medium">-$10,000.00</td></tr>
+                                <tr><td>23/Feb</td><td class="font-medium text-slate-500">Subvención Reintegro FEDAFM (Salvavidas)</td><td class="text-right text-emerald-700 number-font font-medium">+$7,000.00</td></tr>
+                                <tr class="bg-red-50/50"><td colspan="2" class="text-[11px] font-bold text-brand-red py-3"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> El 16/Feb el saldo baja del mínimo permitido BBVA ($1,218.93).</td><td></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MARZO Y ABRIL -->
+                <div class="forensic-card overflow-hidden">
+                    <div class="acc-header p-5 flex flex-col sm:flex-row sm:items-center justify-between bg-white hover:bg-slate-50 transition-colors" onclick="toggleAcc('acc-mzo')">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 text-center border-r border-slate-200 pr-4">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mes</p>
+                                <p class="text-xl font-black text-brand-blue">MZO/ABR</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Flujo Neto</p>
+                                <p class="text-base font-bold text-brand-red number-font">-$14,952.86</p>
+                            </div>
+                            <div class="hidden md:block pl-6 border-l border-slate-100">
+                                <p class="text-[10px] uppercase font-bold text-slate-400">Cierre Abril</p>
+                                <p class="text-xs text-brand-red font-black number-font mt-0.5">$5.40 MXN</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end mt-4 sm:mt-0 w-full sm:w-auto gap-4">
+                            <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">85 Movimientos</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-50 text-slate-400 acc-icon-container">
+                                <i class="fa-solid fa-chevron-down acc-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="acc-mzo" class="acc-content bg-slate-50">
+                        <div class="p-5 border-y border-slate-200">
+                            <div class="flex gap-4">
+                                <div class="w-1 bg-brand-red rounded-full"></div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-brand-red">Diagnóstico: La Ruptura Técnica</h5>
+                                    <p class="mt-1 text-xs text-slate-600 leading-relaxed max-w-4xl">Caída libre. Aparecen cargos automáticos del banco por mantener saldo inferior al mínimo requerido. Se suspende el pago a la contadora externa por falta de fondos. Cierre: $5.40 pesos.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table text-left">
+                                <tr><th class="w-24">Mes</th><th>Concepto del Cargo (Salidas Críticas)</th><th class="text-right w-32">Monto MXN</th></tr>
+                                <tr><td>Mzo y Abr</td><td class="font-medium text-brand-red">Penalización por saldo mínimo + IVA (BBVA)</td><td class="text-right text-brand-red number-font font-medium">-$842.40</td></tr>
+                                <tr><td>Abril</td><td class="font-medium">Ingresos totales del mes (Déficit extremo)</td><td class="text-right text-amber-700 number-font font-medium">Solo $8,600 IN</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAYO -->
+                <div class="forensic-card overflow-hidden border-2 border-brand-red shadow-glow-red">
+                    <div class="acc-header p-5 flex flex-col sm:flex-row sm:items-center justify-between bg-red-50/30 hover:bg-red-50/50 transition-colors" onclick="toggleAcc('acc-may')">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 text-center border-r border-red-200 pr-4">
+                                <p class="text-[10px] font-bold text-brand-red uppercase tracking-widest">Mes</p>
+                                <p class="text-xl font-black text-brand-darkred">MAY</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Flujo Neto</p>
+                                <p class="text-base font-bold text-emerald-700 number-font">+$6,536.00</p>
+                            </div>
+                            <div class="hidden md:block pl-6 border-l border-red-200">
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Ingresos vs Egresos</p>
+                                <p class="text-xs text-brand-darkred font-bold number-font mt-0.5">$59,615 / $53,079</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end mt-4 sm:mt-0 w-full sm:w-auto gap-4">
+                            <span class="text-[10px] font-bold bg-brand-red text-white px-3 py-1 rounded-md shadow-sm">103 Movimientos</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-red-100 text-brand-red acc-icon-container">
+                                <i class="fa-solid fa-chevron-down acc-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="acc-may" class="acc-content bg-white open">
+                        <div class="p-5 border-y border-red-100 bg-red-50/20">
+                            <div class="flex gap-4">
+                                <div class="w-1.5 bg-brand-red rounded-full"></div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-brand-darkred">Diagnóstico: Caos Administrativo (El dinero "quema las manos")</h5>
+                                    <p class="mt-1 text-xs text-slate-700 leading-relaxed max-w-4xl">Entra dinero por DELF, pero de los $59k ingresados, $53k salen en una lluvia de <strong>70 transacciones distintas</strong>. Abonos de $200 pesos al personal demuestran colapso en la planificación.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table text-left">
+                                <tr><th class="w-24">Fecha</th><th>Concepto de la Transacción</th><th class="text-right w-32">Monto MXN</th></tr>
+                                <tr><td>Mayo (x4)</td><td class="font-medium">Renta fraccionada Valencia (Pagada en 4 partes)</td><td class="text-right text-brand-red number-font font-medium">-$15,200.00</td></tr>
+                                <tr><td>Mayo (x14)</td><td class="font-medium text-slate-500">Ingresos Exámenes DELF (Múltiples depósitos)</td><td class="text-right text-emerald-700 number-font font-medium">+$22,050.00</td></tr>
+                                <tr><td class="text-brand-red font-bold">Mayo (x21)</td><td class="font-medium text-brand-red">Micro-abonos "Adeudo M. Tillero" ($200-$1000)</td><td class="text-right text-brand-red number-font font-bold">-$13,845.00</td></tr>
+                                <tr><td>23/May</td><td class="font-medium text-slate-500">Plataforma Academico (Thomas Debay El) €80</td><td class="text-right text-brand-red number-font font-medium">-$1,600.00</td></tr>
+                            </table>
+                        </div>
+                        <div class="p-4 bg-slate-900 text-white text-xs text-center">
+                            <span class="font-bold text-red-300 tracking-wide uppercase">Corte al 03 de Junio:</span> La cuenta vuelve a colapsar. Pago de contabilidad retrasada y renta parcial hunden el saldo a <strong>$120.54 MXN</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 3: RIESGO PENAL, FISCAL Y PASIVOS
+             ========================================== -->
+        <div id="tab-pasivos" class="tab-content">
+            <div class="mb-8 max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 border border-red-200 text-brand-red text-[10px] font-bold uppercase tracking-widest mb-3">
+                    <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+                    Alerta Máxima: Responsabilidad Solidaria
+                </div>
+                <h2 class="text-3xl font-serif font-black text-brand-blue mb-2">Riesgo Penal, Fiscal y Pasivos</h2>
+                <p class="text-brand-text text-sm leading-relaxed">
+                    El saldo cero es un problema operativo; pero la estructura de evasión técnica derivada del pago de rentas y honorarios sin CFDI constituye un <strong>riesgo de responsabilidad penal y fiscal solidaria</strong> directa para la Presidenta del Consejo y la Junta Directiva de la Asociación Civil.
+                </p>
+            </div>
+
+            <!-- Gran Panel SAT -->
+            <div class="forensic-card p-0 bg-slate-900 text-white shadow-2xl border border-red-900/50 relative overflow-hidden mb-8">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-red-500 opacity-5 rounded-bl-full pointer-events-none"></div>
+                <div class="p-6 md:p-8 border-b border-slate-800 flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-32 h-32 shrink-0 relative">
+                        <canvas id="chartFiscal"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span class="text-2xl font-black text-white">86%</span>
+                            <span class="text-[8px] uppercase text-red-400 font-bold">Riesgo</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fa-solid fa-scale-unbalanced text-red-500 text-2xl"></i>
+                            <h3 class="font-bold text-xl text-white">El Riesgo SAT: 86.5% de Operación Clandestina</h3>
+                        </div>
+                        <p class="text-sm text-slate-300 max-w-4xl leading-relaxed mt-3">
+                            De los $239,012 MXN gastados entre enero y abril, <strong>$206,433 MXN se catalogaron como NO DEDUCIBLES</strong> (Cuenta 6100-057). La AFSCDLC opera un esquema de simulación donde el dinero entra formalmente (vía bancos) pero se dispersa en efectivo o transferencias informales a personas físicas que no declaran dichos ingresos. En caso de auditoría, el SAT determinaría presunción de lavado o evasión, recayendo las multas sobre la Mesa Directiva.
+                        </p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800 bg-slate-800/80">
+                    <div class="p-6 md:p-8 relative">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl"><i class="fa-solid fa-users-slash"></i></div>
+                        <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest mb-2">Honorarios Clandestinos (Simulación Laboral)</p>
+                        <p class="text-4xl font-black text-white number-font">$141,339.63</p>
+                        <p class="text-xs text-slate-400 mt-3 leading-relaxed">El 100% de la plantilla docente cobra al margen de la ley fiscal, sin retenciones de ISR ni cuotas obrero-patronales (IMSS). Esto genera una <strong>contingencia laboral, fiscal y de seguridad social simultánea</strong>.</p>
+                    </div>
+                    <div class="p-6 md:p-8 relative">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-5xl"><i class="fa-solid fa-house-circle-exclamation"></i></div>
+                        <p class="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-2">Arrendamiento Informal</p>
+                        <p class="text-4xl font-black text-white number-font">$30,000.00</p>
+                        <p class="text-xs text-slate-400 mt-3 leading-relaxed">De los $35,000 pagados al arrendador Valencia Argüello en el periodo, <strong>solo $5,000 amparan un CFDI</strong>. Pagar $30,000 mensuales extra-oficialmente desde una cuenta corporativa es una bandera roja inmediata para los algoritmos del SAT.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otros Pasivos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nudo Contable FEDAFM -->
+                <div class="forensic-card p-6 md:p-8">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-brand-blue mb-4"><i class="fa-solid fa-globe"></i></div>
+                    <h3 class="font-bold text-lg mb-2 text-brand-blue">Deuda FEDAFM (Paiement par Mandat)</h3>
+                    <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                        Balanza oficial dicta deuda de <strong>$201,216.22 MXN</strong>. Sin embargo, en Nov 2025 se ejecutaron retiros por $40,000 MXN en efectivo para pagar un "préstamo puente" a la Federación. Al no haber CFDI, no se dedujo.
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl text-xs text-slate-700 font-mono border border-slate-200">
+                        <span class="text-brand-blue font-bold">DEUDA REAL:</span> $161,216.22 MXN<br>
+                        <span class="text-brand-red font-bold mt-1 block">&gt; Requiere Póliza de Ajuste Urgente</span>
+                    </div>
+                </div>
+
+                <!-- Honorarios Docentes/Director -->
+                <div class="forensic-card p-6 md:p-8">
+                    <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-700 mb-4"><i class="fa-solid fa-users"></i></div>
+                    <h3 class="font-bold text-lg mb-2 text-brand-blue">Pasivo Laboral Oculto</h3>
+                    <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                        Se mantiene operativa la institución a costa de diferir honorarios, generando un pasivo que crece mes a mes y desmotiva al talento humano.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end border-b border-slate-100 pb-3">
+                            <span class="text-sm font-medium text-slate-700">Nómina Director (Histórico)</span>
+                            <span class="font-black text-orange-700 number-font text-lg">$119,209</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-medium text-slate-700">Honorarios Docentes Netos</span>
+                            <span class="font-black text-orange-700 number-font text-lg">$64,782</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 4: SIMULADOR DE DECISIÓN
+             ========================================== -->
+        <div id="tab-simulador" class="tab-content">
+            <div class="mb-8 max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-widest mb-3">
+                    Herramienta Interactiva
+                </div>
+                <h2 class="text-3xl font-serif font-black text-brand-blue mb-2">Simulador de Decisión Estratégica</h2>
+                <p class="text-brand-text text-sm leading-relaxed">
+                    Manipule las variables para proyectar el impacto en la liquidez. Los datos toman el saldo actual ($120.54) y permiten evaluar si la institución alcanza a cubrir el costo de la transición "Extra-Muros" ($32,650).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- SIMULADOR ESTRATÉGICO -->
+                <div class="forensic-card p-6 md:p-8 border-t-2 border-t-emerald-600">
+                    <h3 class="font-bold text-brand-blue text-lg mb-1"><i class="fa-solid fa-laptop-code text-emerald-600 mr-2"></i>Variables de Decisión</h3>
+                    <p class="text-xs text-slate-500 mb-6">Ajuste los controles para ver el efecto inmediato en la liquidez simulada.</p>
+
+                    <div class="space-y-7">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="text-xs font-bold text-slate-700">Detener pago de renta ("Extra-Muros")</label>
+                                <span class="text-xs font-mono font-bold text-emerald-700" id="valRenta">+$30,000</span>
+                            </div>
+                            <input type="range" min="0" max="30000" step="5000" value="30000" id="simRenta">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="text-xs font-bold text-slate-700">Inyección de Capital (Cobranza / Donación)</label>
+                                <span class="text-xs font-mono font-bold text-emerald-700" id="valCapital">+$0</span>
+                            </div>
+                            <input type="range" min="0" max="50000" step="1000" value="0" id="simCapital">
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 mt-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-bold text-slate-600">Liquidez Simulada (Mes 1)</span>
+                                <span id="simSaldo" class="text-2xl font-black text-brand-blue number-font">$30,120</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-200 pt-3 mt-2">
+                                <span class="text-xs text-slate-500">¿Cubre Mudanza de $32,650?</span>
+                                <span id="simViable" class="text-xs font-bold px-2.5 py-1 rounded-md bg-red-50 text-brand-red border border-red-200">IMPOSIBLE EJECUTAR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEXTO Y LECTURA -->
+                <div class="forensic-card p-0 flex flex-col h-full overflow-hidden">
+                    <div class="bg-slate-900 text-white p-6 md:p-8">
+                        <h4 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-chart-line text-emerald-400"></i> Lectura del Escenario</h4>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">Aun deteniendo el 100% de la renta, el saldo proyectado no alcanza a cubrir el presupuesto de cierre sin una inyección externa de capital. La brecha mínima a cerrar es de <strong class="text-white">$2,530 MXN</strong>.</p>
+                    </div>
+                    <div class="p-6 md:p-8 flex-grow flex flex-col gap-5">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Saldo actual disponible</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Corte 03/Jun/2026</p>
+                            </div>
+                            <span class="font-bold text-slate-800 number-font">$120.54</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Costo total de transición</p>
+                                <p class="text-[11px] text-slate-500 mt-1">Mudanza + reparaciones + bodega</p>
+                            </div>
+                            <span class="font-bold text-slate-800 number-font">$32,650</span>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 leading-relaxed mt-auto">
+                            <i class="fa-solid fa-circle-info mr-1.5 text-amber-600"></i> Este simulador es una herramienta de apoyo a la decisión; no sustituye el dictamen formal del Plan de Cierre (pestaña 5).
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 5: PLAN DE CIERRE
+             ========================================== -->
+        <div id="tab-cierre" class="tab-content">
+            <div class="mb-8 max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue text-white text-[10px] font-bold uppercase tracking-widest mb-3">
+                    Escenario B - Ejecución Inmediata
+                </div>
+                <h2 class="text-3xl font-serif font-black text-brand-blue mb-2">Transición "Extra-Muros" (El Único Camino)</h2>
+                <p class="text-brand-text text-sm leading-relaxed">
+                    Detener el pago de renta ($30,000/mes sin factura) no es una opción estratégica, <strong>es un imperativo de supervivencia legal y matemática</strong>. La asfixia es total. Se requiere mudar el patrimonio y operar en línea o en aulas prestadas para salvar la figura jurídica de la Asociación Civil.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+                <!-- Presupuesto -->
+                <div class="lg:col-span-3 forensic-card overflow-hidden border-slate-200">
+                    <div class="bg-slate-50 border-b border-slate-200 p-5 flex justify-between items-center">
+                        <h4 class="font-bold text-brand-blue flex items-center gap-2"><i class="fa-solid fa-calculator text-slate-400"></i> Presupuesto de Cierre</h4>
+                        <span class="text-[10px] font-bold bg-white border border-slate-200 px-2 py-1 rounded text-slate-500">JUNIO 2026</span>
+                    </div>
+                    <div class="p-6 md:p-8">
+                        <div class="space-y-5 mb-8">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">Mudanza Logística (Fletes Velasco)</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">Vaciado de 3 Pisos - 2 camiones necesarios</p>
+                                </div>
+                                <span class="font-bold text-slate-800 number-font">$14,700</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">Reparaciones de Entrega Inmueble</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">Pintura blanca general, resanes y limpieza</p>
+                                </div>
+                                <span class="font-bold text-slate-800 number-font">$13,450</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">Bodega Resguardo (Century 21/Coldwell)</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">Primer mes renta, 50m² zona Centro</p>
+                                </div>
+                                <span class="font-bold text-slate-800 number-font">$4,500</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center mb-6 shadow-premium">
+                            <span class="font-bold text-sm tracking-wide">COSTO TOTAL DEL PROYECTO</span>
+                            <span class="text-2xl font-black text-white number-font">$32,650</span>
+                        </div>
+
+                        <!-- ALERTA ROJA -->
+                        <div class="bg-red-50 border border-red-200 p-5 rounded-2xl relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 text-red-100 text-6xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="relative z-10">
+                                <h5 class="text-brand-red font-bold text-sm flex items-center gap-2 mb-2"><span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span> IMPOSIBILIDAD DE EJECUCIÓN</h5>
+                                <p class="text-xs text-red-900/80 leading-relaxed font-medium">
+                                    Con un saldo bancario de $120.54 MXN y <strong>una Caja Física de $0.00 MXN</strong>, la ejecución de esta mudanza es matemáticamente imposible. Se requiere una inyección urgente de capital (donación, rescate o cobranza agresiva) para poder abandonar el local.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proveedores -->
+                <div class="lg:col-span-2 space-y-4">
+                    <h4 class="font-bold text-brand-blue text-sm uppercase tracking-widest mb-4 px-1">Directorio Validado</h4>
+
+                    <div class="forensic-card p-5 hover:border-blue-300">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="font-bold text-sm text-brand-blue">Fletes Velasco</h5>
+                            <span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-200">⭐ 4.8</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono mb-3">📞 +52 967 107 2789</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">Capacidad para manejar mobiliario pesado (mediateca/biblioteca) en calles céntricas de San Cristóbal.</p>
+                    </div>
+
+                    <div class="forensic-card p-5 hover:border-blue-300">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="font-bold text-sm text-brand-blue">Coldwell Banker</h5>
+                            <span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-200">⭐ 5.0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-mono mb-3">📞 +52 967 688 2615</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">Gestión de alquiler de bodega para resguardo patrimonial mientras se opera extra-muros.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-brand-blue to-slate-800 text-white p-6 rounded-2xl mt-6 shadow-premium relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 text-white/10 text-7xl"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h5 class="font-bold text-sm text-white relative z-10 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-300"></i> Salvaguarda Pedagógica</h5>
+                        <p class="text-xs text-blue-100 mt-3 leading-relaxed relative z-10">El cierre del edificio NO suspende la actividad. Los alumnos migran a esquema híbrido (plataforma Academico). La AFSCDLC mantiene derecho exclusivo DELF/DALF en Chiapas.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // 1. EVALUADOR DE ESTADO EN VIVO
+        function evaluarSistema() {
+            const statusTxt = document.getElementById("sysStatus");
+            const alertBanner = document.getElementById("alertBanner");
+            const alertText = document.getElementById("alertText");
+
+            const runway = (AFSC_DATA.saldo_operativo / AFSC_DATA.burn_rate_promedio).toFixed(3);
+            document.getElementById("runway").textContent = runway;
+
+            if (AFSC_DATA.saldo_operativo < 500) {
+                statusTxt.textContent = "Colapso Operacional";
+                statusTxt.className = "text-xl font-black leading-tight text-brand-red";
+                alertText.textContent = "DICTAMEN FORENSE NIVEL 3: RIESGO PENAL Y QUIEBRA MATERIAL CONFIRMADA";
+            } else if (AFSC_DATA.saldo_operativo < 15000) {
+                statusTxt.textContent = "Riesgo Crítico";
+                statusTxt.className = "text-xl font-black leading-tight text-amber-700";
+            }
+
+            let score = 0;
+            if (AFSC_DATA.saldo_operativo < 1000) score += 40;
+            if (AFSC_DATA.caja_chica === 0) score += 15;
+            if (AFSC_DATA.riesgo_cfdi_pct > 80) score += 25;
+            if (AFSC_DATA.pasivos_totales > 200000) score += 15;
+
+            document.getElementById("riskScore").textContent = score;
+            const bar = document.getElementById("riskBar");
+            bar.style.width = score + "%";
+        }
+
+        // 2. SIMULADOR ESTRATÉGICO
+        function initSimulador() {
+            const sRenta = document.getElementById("simRenta");
+            const sCap = document.getElementById("simCapital");
+            const valRenta = document.getElementById("valRenta");
+            const valCap = document.getElementById("valCapital");
+            const simSaldo = document.getElementById("simSaldo");
+            const simViable = document.getElementById("simViable");
+
+            function updateSim() {
+                const renta = parseInt(sRenta.value);
+                const cap = parseInt(sCap.value);
+
+                valRenta.textContent = "+$" + renta.toLocaleString();
+                valCap.textContent = "+$" + cap.toLocaleString();
+
+                const newLiquidez = AFSC_DATA.saldo_operativo + renta + cap;
+                simSaldo.textContent = "$" + newLiquidez.toLocaleString();
+
+                if (newLiquidez >= AFSC_DATA.costo_mudanza) {
+                    simViable.textContent = "VIABLE";
+                    simViable.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200";
+                } else {
+                    simViable.textContent = `FALTAN $${(AFSC_DATA.costo_mudanza - newLiquidez).toLocaleString()}`;
+                    simViable.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-red-50 text-brand-red border border-red-200";
+                }
+            }
+
+            sRenta.addEventListener("input", updateSim);
+            sCap.addEventListener("input", updateSim);
+            updateSim();
+        }
+
+        // 3. NAVEGACIÓN TABS (Pill style)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('header button').forEach(btn => {
+                btn.className = "whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all";
+            });
+
+            setTimeout(() => { document.getElementById('tab-' + tabId).classList.add('active'); }, 50);
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.className = "whitespace-nowrap px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-brand-darkred transition-all";
+        }
+
+        // 4. ACORDEÓN (uno abierto a la vez)
+        function toggleAcc(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+
+            document.querySelectorAll('.acc-content').forEach(el => {
+                if (el.id !== id && el.classList.contains('open')) {
+                    el.classList.remove('open');
+                    let icon = el.previousElementSibling.querySelector('.acc-icon');
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            const icon = header.querySelector('.acc-icon');
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            evaluarSistema();
+            initSimulador();
+
+            // Acordeón Mayo abierto por defecto
+            const accMay = document.getElementById('acc-may');
+            if (accMay) {
+                const icon = accMay.previousElementSibling.querySelector('.acc-icon');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748B';
+
+            // Sparkline Saldo
+            new Chart(document.getElementById('spark-saldo').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        data: [11244, 30748, 14958, 6272, 5.4, 120.54],
+                        borderColor: '#991B1B',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+
+            // Gráfico Déficit Estructural
+            const ctx = document.getElementById('chartDificit').getContext('2d');
+            const gradIngresos = ctx.createLinearGradient(0, 0, 0, 400);
+            gradIngresos.addColorStop(0, '#0F172A');
+            gradIngresos.addColorStop(1, '#334155');
+
+            const gradGastos = ctx.createLinearGradient(0, 0, 0, 400);
+            gradGastos.addColorStop(0, '#991B1B');
+            gradGastos.addColorStop(1, '#EF4444');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Enero', 'Febrero', 'Marzo', 'Abril'],
+                    datasets: [
+                        {
+                            label: 'Ingresos',
+                            data: [95670, 60398, 48850, 22130],
+                            backgroundColor: gradIngresos,
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        },
+                        {
+                            label: 'Egresos (Costos Fijos Asfixiantes)',
+                            data: [76166, 76188, 57536, 28396],
+                            backgroundColor: gradGastos,
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F1F5F9', drawBorder: false },
+                            ticks: {
+                                callback: function(value) { return '$' + (value / 1000) + 'k'; },
+                                font: { family: "'JetBrains Mono', monospace", size: 11 }
+                            },
+                            border: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { font: { weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { usePointStyle: true, boxWidth: 8, padding: 20, font: { size: 11, weight: '500' } }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            titleFont: { size: 13, family: "'Inter', sans-serif" },
+                            bodyFont: { size: 12, family: "'JetBrains Mono', monospace" },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.dataset.label + ': $' + context.raw.toLocaleString() + ' MXN';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico Fiscal (Doughnut)
+            new Chart(document.getElementById('chartFiscal').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Riesgo SAT (No Deducible)', 'Operación Regular'],
+                    datasets: [{
+                        data: [86.5, 13.5],
+                        backgroundColor: ['#EF4444', '#10B981'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '75%',
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw}%` } } }
+                }
+            });
+
+            // Animación de entrada (Intersection Observer)
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = "translateY(0)";
+                    }
+                });
+            });
+
+            document.querySelectorAll('.forensic-card').forEach((card, index) => {
+                card.style.opacity = 0;
+                card.style.transform = "translateY(16px)";
+                card.style.transition = `opacity 0.5s ease ${index * 30}ms, transform 0.5s ease ${index * 30}ms`;
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
