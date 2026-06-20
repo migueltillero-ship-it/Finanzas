@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFSC · Sistema Operativo Forense 2026</title>
+<link rel="icon" type="image/png" href="af_logo_oficial.png">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        serif: ['Playfair Display', 'serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        brand: {
+          navy:    '#002654',
+          ink:     '#0B1220',
+          slate:   '#1E293B',
+          red:     '#991B1B',
+          darkred: '#7F1D1D',
+          ember:   '#DC2626',
+          amber:   '#B45309',
+          emerald: '#047857',
+          light:   '#F8FAFC',
+          border:  '#E2E8F0',
+          text:    '#334155',
+          muted:   '#64748B'
+        }
+      },
+      boxShadow: {
+        'premium':       '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)',
+        'premium-hover': '0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04)',
+        'glow-red':      '0 0 24px rgba(220,38,38,0.30)',
+        'glow-navy':     '0 0 24px rgba(0,38,84,0.35)',
+        'inset-line':    'inset 0 -1px 0 rgba(15,23,42,0.06)'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(0,38,84,0.07), transparent 60%),
+      radial-gradient(900px 500px at 110% 0%, rgba(153,27,27,0.06), transparent 60%),
+      #F8FAFC;
+    color:#0B1220;
+    -webkit-font-smoothing:antialiased;
+  }
+  .grid-bg{
+    background-image:
+      linear-gradient(rgba(15,23,42,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,23,42,.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .number-font { font-family:'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .card {
+    background:#fff; border:1px solid #E2E8F0; border-radius:18px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.02), 0 8px 24px rgba(2,6,23,.04);
+    transition: all .3s ease;
+  }
+  .card:hover{ box-shadow: 0 4px 10px rgba(0,0,0,.04), 0 18px 40px rgba(2,6,23,.06); transform: translateY(-2px); }
+  .pill{ display:inline-flex; align-items:center; gap:.5rem; padding:.25rem .65rem; border-radius:999px; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+  .tab-content{ display:none; opacity:0; transform: translateY(8px); }
+  .tab-content.active{ display:block; animation: fadeIn .45s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes fadeIn { to { opacity:1; transform: translateY(0); } }
+  .blink { animation: blink 1.4s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity:.25 } }
+  .data-table{ width:100%; border-collapse: separate; border-spacing:0; }
+  .data-table th{
+    background:#F8FAFC; text-transform:uppercase; font-size:.65rem; letter-spacing:.08em;
+    color:#64748B; font-weight:700; padding:12px 14px; border-bottom:1px solid #E2E8F0;
+  }
+  .data-table td{ padding:12px 14px; font-size:.85rem; border-bottom:1px solid #F1F5F9; color:#334155; }
+  .data-table tr:hover td{ background:#F8FAFC; }
+  .range-slider{ -webkit-appearance:none; width:100%; height:6px; border-radius:999px;
+    background: linear-gradient(90deg, #002654 0%, #991B1B 100%); outline:none; }
+  .range-slider::-webkit-slider-thumb{ -webkit-appearance:none; width:22px; height:22px; border-radius:999px;
+    background:#fff; border:3px solid #002654; cursor:pointer; box-shadow:0 4px 10px rgba(0,38,84,.35); }
+  .range-slider::-moz-range-thumb{ width:22px; height:22px; border-radius:999px;
+    background:#fff; border:3px solid #002654; cursor:pointer; }
+  .ticker { white-space:nowrap; animation: marquee 38s linear infinite; }
+  @keyframes marquee { from{ transform: translateX(0) } to { transform: translateX(-50%) } }
+  .glass{ background: rgba(255,255,255,0.72); backdrop-filter: blur(14px); }
+  .mono-divider{ background-image: linear-gradient(90deg, transparent, #002654 50%, transparent); height:1px; }
+  ::-webkit-scrollbar{ width:8px; height:8px } ::-webkit-scrollbar-thumb{ background:#CBD5E1; border-radius:4px }
+  ::-webkit-scrollbar-thumb:hover{ background:#94A3B8 }
+</style>
+</head>
+<body class="pb-24">
+
+<!-- BARRA DICTAMEN -->
+<div class="bg-brand-red text-white text-[11px] font-bold uppercase tracking-[0.22em] py-2 px-4 text-center relative z-50 flex items-center justify-center gap-3">
+  <span class="relative flex h-2.5 w-2.5">
+    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+  </span>
+  Dictamen Forense Nivel 3 · Riesgo Penal Activo · Quiebra Material Confirmada
+</div>
+
+<!-- TICKER -->
+<div class="bg-brand-ink text-slate-300 text-[11px] font-mono overflow-hidden border-b border-white/5">
+  <div class="ticker py-1.5 inline-block">
+    <span class="px-6">BBVA 0186832806 · SALDO 120.54 MXN</span><span class="text-brand-ember px-6">▼ −99.87% YoY</span>
+    <span class="px-6">CAJA CHICA 0.00 MXN</span><span class="text-brand-ember px-6">LIQUIDEZ EXTINTA</span>
+    <span class="px-6">PATRIMONIO NETO −156,798 MXN</span><span class="px-6">CFDI COBERTURA 13.5%</span>
+    <span class="px-6">SAT EXPOSICIÓN 86.5%</span><span class="px-6">RUNWAY &lt; 0.01 MES</span>
+    <span class="px-6">FEDAFM −161,216.22 MXN</span><span class="px-6">RENTA INFORMAL 30,000/MES</span>
+    <span class="px-6">BBVA 0186832806 · SALDO 120.54 MXN</span><span class="text-brand-ember px-6">▼ −99.87% YoY</span>
+    <span class="px-6">CAJA CHICA 0.00 MXN</span><span class="text-brand-ember px-6">LIQUIDEZ EXTINTA</span>
+    <span class="px-6">PATRIMONIO NETO −156,798 MXN</span><span class="px-6">CFDI COBERTURA 13.5%</span>
+    <span class="px-6">SAT EXPOSICIÓN 86.5%</span><span class="px-6">RUNWAY &lt; 0.01 MES</span>
+    <span class="px-6">FEDAFM −161,216.22 MXN</span><span class="px-6">RENTA INFORMAL 30,000/MES</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 grid-bg opacity-60"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-brand-light"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-10">
+    <div class="flex items-start justify-between gap-6 flex-col md:flex-row">
+      <div class="max-w-3xl">
+        <div class="pill bg-white border border-brand-border text-brand-navy mb-5">
+          <span class="w-1.5 h-1.5 rounded-full bg-brand-red blink"></span> Sistema Operativo Forense · v2026.06
+        </div>
+        <h1 class="font-serif font-black text-brand-ink leading-[1.02] text-4xl md:text-6xl tracking-tight">
+          <span class="italic font-light text-brand-navy">Alianza Francesa</span><br>
+          San Cristóbal · <span class="text-brand-red">Inteligencia Forense</span>
+        </h1>
+        <p class="mt-5 text-brand-text text-base md:text-[15px] leading-relaxed max-w-2xl">
+          Plataforma de mando único para la dirección general: cruza balanza contable, estados BBVA y exposición fiscal en un panel vivo. Cada cifra es trazable a documento fuente; cada decisión recalcula el horizonte de supervivencia en tiempo real.
+        </p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="pill bg-brand-ink text-white">A.C. RFC: AFS900101···</span>
+          <span class="pill bg-white border border-brand-border text-brand-text">Periodo Ene–May 2026</span>
+          <span class="pill bg-white border border-brand-border text-brand-text">Confidencial · Mesa Directiva</span>
+        </div>
+      </div>
+
+      <!-- PANEL VIVO -->
+      <div class="glass border border-brand-border rounded-2xl p-5 w-full md:w-[360px] shadow-premium">
+        <div class="flex items-center justify-between">
+          <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-muted">Panel Vivo · Diagnóstico</p>
+          <button id="audioToggle" class="text-[10px] font-bold text-brand-navy hover:text-brand-red transition">
+            <i class="fa-solid fa-wave-square mr-1"></i> Drone OFF
+          </button>
+        </div>
+        <div class="mt-3">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Estado Operativo</p>
+          <div class="flex items-center gap-2 mt-1">
+            <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-brand-ember blink"></span>
+            <h3 id="statusLabel" class="text-xl font-black text-brand-red">Colapso Operativo</h3>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mt-4">
+          <div>
+            <p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Saldo</p>
+            <p id="liveBalance" class="number-font text-base font-black text-brand-ink mt-1">$120.54</p>
+          </div>
+          <div>
+            <p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Runway</p>
+            <p id="liveRunway" class="number-font text-base font-black text-brand-red mt-1">0.00 m</p>
+          </div>
+          <div>
+            <p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Riesgo</p>
+            <p id="liveRisk" class="number-font text-base font-black text-brand-amber mt-1">98%</p>
+          </div>
+        </div>
+        <div class="mt-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div id="riskBar" class="h-full bg-gradient-to-r from-amber-500 via-red-600 to-red-800" style="width:98%"></div>
+        </div>
+        <p class="mt-3 text-[11px] text-brand-muted leading-relaxed">
+          Cálculo automático sobre la balanza al 30/Abr/2026 cruzada con extractos BBVA al 03/Jun/2026.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NAV TABS -->
+<header class="sticky top-3 z-40 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="glass border border-brand-border rounded-2xl shadow-premium p-2 flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-3 pl-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-navy text-white flex items-center justify-center font-serif font-black italic shadow-glow-navy">af</div>
+        <div>
+          <p class="font-serif font-bold text-brand-ink text-sm leading-none">Sistema Forense AFSC</p>
+          <p class="text-[10px] uppercase tracking-[0.18em] text-brand-muted font-bold mt-0.5">Mando único · 2026</p>
+        </div>
+      </div>
+      <div class="flex items-center bg-slate-100 p-1.5 rounded-xl w-full md:w-auto overflow-x-auto">
+        <button onclick="switchTab('quiebra')" id="btn-quiebra" class="tabbtn whitespace-nowrap px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-brand-darkred">1 · Quiebra Técnica</button>
+        <button onclick="switchTab('autopsia')" id="btn-autopsia" class="tabbtn whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:bg-slate-200/60">2 · Autopsia Bancaria</button>
+        <button onclick="switchTab('penal')" id="btn-penal" class="tabbtn whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:bg-slate-200/60">3 · Riesgo Penal</button>
+        <button onclick="switchTab('simulador')" id="btn-simulador" class="tabbtn whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:bg-slate-200/60">4 · Simulador</button>
+        <button onclick="switchTab('cierre')" id="btn-cierre" class="tabbtn whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:bg-slate-200/60">5 · Plan de Cierre</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+
+<!-- ============ TAB 1: QUIEBRA TÉCNICA ============ -->
+<section id="tab-quiebra" class="tab-content active">
+  <div class="max-w-3xl mb-8">
+    <div class="pill bg-red-50 border border-red-100 text-brand-red mb-3"><span class="w-1.5 h-1.5 rounded-full bg-brand-red blink"></span> Dictamen Ejecutivo</div>
+    <h2 class="text-3xl md:text-4xl font-serif font-black text-brand-ink leading-tight">La inviabilidad ya no es opinión: es <span class="italic text-brand-red">aritmética</span>.</h2>
+    <p class="text-brand-text mt-4 leading-relaxed text-[15px]">
+      Cruzando la Balanza de Comprobación (Abr 2026) con los Estados BBVA (Ene–May 2026) y el Rapport Fédération 2026, la institución cruzó el punto de no retorno: el efectivo disponible no cubre un día operativo, el patrimonio neto es negativo y el 86.5% del flujo se ejecuta fuera del régimen fiscal.
+    </p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div class="card p-5 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-brand-navy"></div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Saldo BBVA</p>
+      <p class="number-font text-2xl font-black text-brand-ink mt-2">$120.54</p>
+      <div class="h-10 mt-2"><canvas id="spark1"></canvas></div>
+      <p class="text-[10px] text-brand-red mt-1 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 03/Jun/2026</p>
+    </div>
+    <div class="card p-5 relative overflow-hidden bg-red-50/30 border-red-100">
+      <div class="absolute top-0 left-0 w-full h-1 bg-brand-ember"></div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-brand-red/80">Caja chica</p>
+      <p class="number-font text-2xl font-black text-brand-red mt-2">$0.00</p>
+      <p class="text-[10px] text-brand-red mt-3 font-bold"><i class="fa-solid fa-ban mr-1"></i> Liquidez extinta</p>
+    </div>
+    <div class="card p-5 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Patrimonio neto</p>
+      <p class="number-font text-2xl font-black text-amber-600 mt-2">−$156,798</p>
+      <p class="text-[10px] text-brand-muted mt-3"><i class="fa-solid fa-book-open mr-1"></i> Balanza Abr '26</p>
+    </div>
+    <div class="card p-5 relative overflow-hidden bg-orange-50/40 border-orange-100">
+      <div class="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-orange-700">Valor de remate</p>
+      <p class="number-font text-2xl font-black text-orange-600 mt-2">$343.93</p>
+      <p class="text-[10px] text-orange-900/70 mt-3">Mobiliario depreciado 99.85%</p>
+    </div>
+    <div class="card p-5 relative overflow-hidden bg-brand-ink text-white border-brand-ink">
+      <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Exposición SAT</p>
+      <p class="number-font text-2xl font-black text-white mt-2">86.5%</p>
+      <p class="text-[10px] text-slate-400 mt-3"><i class="fa-solid fa-handcuffs mr-1"></i> Defraudación técnica</p>
+    </div>
+  </div>
+
+  <!-- CHART PRINCIPAL -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="card p-6 lg:col-span-2">
+      <div class="flex items-end justify-between mb-4">
+        <div>
+          <h4 class="font-bold text-brand-ink text-lg">Colapso estructural del modelo</h4>
+          <p class="text-xs text-brand-muted mt-1">Caída del 76.9% en ingresos (Ene→Abr) vs costos fijos inelásticos</p>
+        </div>
+        <span class="pill bg-slate-100 text-brand-muted">Fuente: BBVA + Balanza</span>
+      </div>
+      <div class="h-72"><canvas id="chartMain"></canvas></div>
+    </div>
+    <div class="card p-6 bg-brand-ink text-white relative overflow-hidden">
+      <div class="absolute -right-6 -top-6 text-white/5 text-9xl"><i class="fa-solid fa-quote-right"></i></div>
+      <div class="relative">
+        <span class="pill bg-white/10 text-white border border-white/15">Conclusión Forense</span>
+        <p class="font-serif italic text-lg leading-relaxed mt-4 text-slate-100">
+          "La AFSC liquida $30,000 mensuales de renta sin recibir factura y paga honorarios mediante micro-transferencias sin CFDI. Continuar bajo este esquema no es resistencia institucional: es negligencia financiera con riesgo penal personal para la mesa directiva."
+        </p>
+        <div class="mono-divider my-5"></div>
+        <p class="text-xs text-slate-400">Extracto · Libro II de Gobernanza · Dirección General</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 2: AUTOPSIA BANCARIA ============ -->
+<section id="tab-autopsia" class="tab-content">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div class="max-w-2xl">
+      <div class="pill bg-slate-100 text-slate-600 mb-3">Estados oficiales BBVA</div>
+      <h2 class="text-3xl font-serif font-black text-brand-ink">Autopsia · Cuenta 0186832806</h2>
+      <p class="mt-3 text-brand-text leading-relaxed text-sm">
+        Evidencia matemática de la "gestión por urgencia": cada ingreso se pulveriza en decenas de micro-abonos en menos de 48 horas, generando penalizaciones por saldo mínimo y bloqueando cualquier capacidad de planeación.
+      </p>
+    </div>
+    <div class="grid grid-cols-3 gap-3">
+      <div class="card px-4 py-3 text-center"><p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Transacciones</p><p class="number-font text-xl font-black text-brand-ink mt-1">353</p></div>
+      <div class="card px-4 py-3 text-center"><p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Micro &lt; $1k</p><p class="number-font text-xl font-black text-brand-red mt-1">198</p></div>
+      <div class="card px-4 py-3 text-center"><p class="text-[9px] font-bold uppercase tracking-widest text-brand-muted">Penalizaciones</p><p class="number-font text-xl font-black text-amber-600 mt-1">$842</p></div>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="p-5 border-b border-brand-border flex items-center justify-between">
+      <h4 class="font-bold text-brand-ink">Cronología forense Ene–May 2026</h4>
+      <span class="pill bg-red-50 text-brand-red border border-red-100">5 cortes auditados</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="data-table">
+        <thead><tr>
+          <th>Mes</th><th>Ingresos</th><th>Egresos</th><th>Flujo neto</th><th>Movimientos</th><th>Saldo cierre</th><th>Patrón forense</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="font-bold">ENE</td><td class="number-font text-emerald-700">+$95,670</td><td class="number-font text-brand-red">−$76,166</td><td class="number-font text-emerald-700 font-bold">+$19,503</td><td>139</td><td class="number-font">$26,940</td><td class="text-xs">Espejismo de anualidades; 89 cargos diferidos del Q4-25</td></tr>
+          <tr><td class="font-bold">FEB</td><td class="number-font text-emerald-700">+$60,398</td><td class="number-font text-brand-red">−$76,188</td><td class="number-font text-brand-red font-bold">−$15,790</td><td>80</td><td class="number-font">$11,150</td><td class="text-xs">Inicio hemorragia; 16/Feb cruza saldo mínimo BBVA</td></tr>
+          <tr><td class="font-bold">MZO</td><td class="number-font text-emerald-700">+$48,850</td><td class="number-font text-brand-red">−$57,536</td><td class="number-font text-brand-red font-bold">−$8,686</td><td>47</td><td class="number-font">$2,464</td><td class="text-xs">Aparecen comisiones por saldo insuficiente</td></tr>
+          <tr><td class="font-bold">ABR</td><td class="number-font text-emerald-700">+$22,130</td><td class="number-font text-brand-red">−$28,396</td><td class="number-font text-brand-red font-bold">−$6,266</td><td>38</td><td class="number-font text-brand-red">$5.40</td><td class="text-xs">Ruptura técnica · suspensión a contabilidad externa</td></tr>
+          <tr class="bg-red-50/40"><td class="font-bold text-brand-red">MAY</td><td class="number-font text-emerald-700">+$59,615</td><td class="number-font text-brand-red">−$53,079</td><td class="number-font text-emerald-700 font-bold">+$6,536</td><td>103</td><td class="number-font">$6,541</td><td class="text-xs text-brand-red font-bold">Caos: 21 micro-abonos "Adeudo M. Tillero" $200–$1,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+    <div class="card p-6 lg:col-span-2">
+      <h4 class="font-bold text-brand-ink mb-1">Distribución de flujos · Mayo 2026</h4>
+      <p class="text-xs text-brand-muted mb-4">103 movimientos en 22 días hábiles · velocidad media 4.68 tx/día</p>
+      <div class="h-64"><canvas id="chartMay"></canvas></div>
+    </div>
+    <div class="card p-6">
+      <h4 class="font-bold text-brand-ink mb-3">Patrones críticos detectados</h4>
+      <ul class="space-y-3 text-sm text-brand-text">
+        <li class="flex gap-3"><i class="fa-solid fa-circle-dot text-brand-red mt-1.5 text-[8px]"></i><span><strong>Renta fraccionada</strong> en 4 transferencias mensuales — sin CFDI por $30k/mes.</span></li>
+        <li class="flex gap-3"><i class="fa-solid fa-circle-dot text-brand-red mt-1.5 text-[8px]"></i><span><strong>Micro-abonos a dirección</strong> ($200–$1,000) · simulación de adeudo histórico.</span></li>
+        <li class="flex gap-3"><i class="fa-solid fa-circle-dot text-amber-600 mt-1.5 text-[8px]"></i><span><strong>14 depósitos DELF</strong> fragmentados — riesgo de no conciliación con FEDAFM.</span></li>
+        <li class="flex gap-3"><i class="fa-solid fa-circle-dot text-amber-600 mt-1.5 text-[8px]"></i><span><strong>Pagos plataforma Acadómico</strong> en EUR vía SPEI sin contrato local.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3: RIESGO PENAL ============ -->
+<section id="tab-penal" class="tab-content">
+  <div class="max-w-3xl mb-8">
+    <div class="pill bg-red-100 border border-red-200 text-brand-red mb-3"><span class="w-1.5 h-1.5 rounded-full bg-brand-red blink"></span> Responsabilidad solidaria</div>
+    <h2 class="text-3xl font-serif font-black text-brand-ink">Riesgo Penal, Fiscal y Laboral</h2>
+    <p class="mt-3 text-brand-text leading-relaxed text-sm">
+      El saldo cero es operativo; la estructura de evasión técnica derivada del pago de rentas y honorarios sin CFDI configura un escenario de <strong>responsabilidad penal solidaria</strong> sobre la Presidenta del Consejo y la Junta Directiva (Art. 113 CFF · Art. 400-Bis CPF).
+    </p>
+  </div>
+
+  <div class="card p-0 bg-brand-ink text-white shadow-glow-red border border-red-900/50 relative overflow-hidden mb-8">
+    <div class="absolute right-0 top-0 w-64 h-64 bg-brand-red opacity-10 rounded-bl-full"></div>
+    <div class="p-8 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-scale-unbalanced text-brand-ember text-2xl"></i>
+        <h3 class="font-bold text-xl">Vector SAT · 86.5% en zona clandestina</h3>
+      </div>
+      <p class="text-sm text-slate-300 mt-3 leading-relaxed max-w-4xl">
+        De $239,012 MXN ejercidos entre enero y abril, $206,433 MXN se catalogaron como <strong>no deducibles</strong> (Cta. 6100-057). El SAT presumiría simulación, ingresos no comprobables y eventualmente lavado, derivando las sanciones contra la persona moral y la mesa directiva en lo personal.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 bg-white/[.02]">
+      <div class="p-8">
+        <p class="pill bg-amber-500/20 text-amber-300 mb-3">Honorarios clandestinos</p>
+        <p class="number-font text-4xl font-black">$141,339.63</p>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">100% de la plantilla docente fuera de régimen fiscal · sin ISR, sin IMSS, sin INFONAVIT. Contingencia laboral, fiscal y de seguridad social simultánea.</p>
+      </div>
+      <div class="p-8">
+        <p class="pill bg-red-500/20 text-red-300 mb-3">Arrendamiento informal</p>
+        <p class="number-font text-4xl font-black">$30,000.00<span class="text-base font-normal text-slate-400">/mes</span></p>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">De los $35,000 transferidos al arrendador Valencia Argüello, sólo $5,000 amparan CFDI. Pagar el delta desde cuenta institucional dispara modelo de riesgo SAT automáticamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-brand-navy mb-3"><i class="fa-solid fa-globe"></i></div>
+      <h3 class="font-bold text-lg text-brand-ink">Deuda FEDAFM · Paiement par Mandat</h3>
+      <p class="text-xs text-brand-muted mt-2 leading-relaxed">Balanza dicta $201,216.22; sin embargo Nov-25 registró $40,000 en efectivo como "préstamo puente". Requiere póliza de ajuste y comunicación formal a la Federación.</p>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4 text-xs font-mono">
+        <span class="text-brand-navy font-bold">DEUDA REAL:</span> $161,216.22 MXN<br>
+        <span class="text-brand-red font-bold">› Ajuste contable urgente</span>
+      </div>
+    </div>
+    <div class="card p-6">
+      <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 mb-3"><i class="fa-solid fa-users"></i></div>
+      <h3 class="font-bold text-lg text-brand-ink">Pasivo Laboral Oculto</h3>
+      <p class="text-xs text-brand-muted mt-2 leading-relaxed">La institución sobrevive difiriendo honorarios. Cada mes adicional incrementa el riesgo de demanda laboral colectiva con base en simulación.</p>
+      <div class="space-y-3 mt-4">
+        <div class="flex justify-between items-end border-b border-slate-100 pb-2"><span class="text-sm">Nómina Director (histórico)</span><span class="number-font font-black text-orange-600 text-lg">$119,209</span></div>
+        <div class="flex justify-between items-end"><span class="text-sm">Honorarios docentes netos</span><span class="number-font font-black text-orange-600 text-lg">$64,782</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: SIMULADOR ============ -->
+<section id="tab-simulador" class="tab-content">
+  <div class="max-w-3xl mb-8">
+    <div class="pill bg-brand-navy text-white mb-3">War Room · Toma de decisión</div>
+    <h2 class="text-3xl font-serif font-black text-brand-ink">Simulador Estratégico de Supervivencia</h2>
+    <p class="mt-3 text-brand-text leading-relaxed text-sm">
+      Manipule los costos fijos y observe en vivo cómo varía el horizonte de operación (runway) y el score de riesgo. El motor cruza balanza, BBVA y proyección a 6 meses.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="card p-6 lg:col-span-3">
+      <h4 class="font-bold text-brand-ink mb-1">Palancas operativas</h4>
+      <p class="text-xs text-brand-muted mb-6">Mueva cada control para recalcular el sistema.</p>
+
+      <div class="space-y-7">
+        <div>
+          <div class="flex items-end justify-between"><label class="text-sm font-bold text-brand-ink">Renta mensual</label><span id="rentVal" class="number-font font-black text-brand-navy">$35,000</span></div>
+          <input id="rentRange" type="range" min="0" max="50000" step="500" value="35000" class="range-slider mt-3">
+          <div class="flex justify-between text-[10px] text-brand-muted mt-1 number-font"><span>$0 (extra-muros)</span><span>$50k</span></div>
+        </div>
+        <div>
+          <div class="flex items-end justify-between"><label class="text-sm font-bold text-brand-ink">Nómina docente</label><span id="payrollVal" class="number-font font-black text-brand-navy">$35,335</span></div>
+          <input id="payrollRange" type="range" min="0" max="60000" step="500" value="35335" class="range-slider mt-3">
+        </div>
+        <div>
+          <div class="flex items-end justify-between"><label class="text-sm font-bold text-brand-ink">Inyección de capital extraordinario</label><span id="capitalVal" class="number-font font-black text-emerald-700">$0</span></div>
+          <input id="capitalRange" type="range" min="0" max="500000" step="5000" value="0" class="range-slider mt-3">
+        </div>
+        <div>
+          <div class="flex items-end justify-between"><label class="text-sm font-bold text-brand-ink">Ingreso mensual proyectado</label><span id="incomeVal" class="number-font font-black text-brand-navy">$45,000</span></div>
+          <input id="incomeRange" type="range" min="0" max="120000" step="1000" value="45000" class="range-slider mt-3">
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-6 lg:col-span-2 bg-brand-ink text-white relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-brand-red/20 blur-3xl"></div>
+      <p class="pill bg-white/10 text-white border border-white/15">Resultado en vivo</p>
+      <h4 class="font-serif text-2xl font-black mt-3">Horizonte de operación</h4>
+
+      <div class="mt-6">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Runway estimado</p>
+        <p id="simRunway" class="number-font text-5xl font-black mt-1">0.00 <span class="text-lg text-slate-400">meses</span></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mt-6">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Burn rate</p>
+          <p id="simBurn" class="number-font text-lg font-black text-brand-ember mt-1">−$25,335</p>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Score de riesgo</p>
+          <p id="simRisk" class="number-font text-lg font-black mt-1">98%</p>
+        </div>
+      </div>
+
+      <div class="mt-5 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+        <div id="simRiskBar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600" style="width:98%"></div>
+      </div>
+
+      <div class="mono-divider my-5 opacity-40"></div>
+      <p id="simVerdict" class="text-sm text-slate-200 leading-relaxed">
+        Bajo el esquema actual, la institución pierde liquidez en menos de 24 horas. La única palanca con impacto material es eliminar la renta sin CFDI.
+      </p>
+    </div>
+  </div>
+
+  <div class="card p-6 mt-6">
+    <h4 class="font-bold text-brand-ink mb-1">Proyección de saldo a 6 meses</h4>
+    <p class="text-xs text-brand-muted mb-3">Recalculada en tiempo real con las palancas del simulador.</p>
+    <div class="h-64"><canvas id="chartSim"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ TAB 5: PLAN DE CIERRE ============ -->
+<section id="tab-cierre" class="tab-content">
+  <div class="max-w-3xl mb-8">
+    <div class="pill bg-brand-navy text-white mb-3">Escenario B · Ejecución inmediata</div>
+    <h2 class="text-3xl font-serif font-black text-brand-ink">Transición Extra-Muros</h2>
+    <p class="mt-3 text-brand-text leading-relaxed text-sm">
+      Detener el pago de renta sin factura ($30,000/mes) no es alternativa estratégica: es un <strong>imperativo legal y matemático</strong>. Mudar el patrimonio, operar híbrido y proteger la figura jurídica de la A.C. es el único camino viable.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="card overflow-hidden lg:col-span-3">
+      <div class="bg-slate-50 border-b border-brand-border p-5 flex items-center justify-between">
+        <h4 class="font-bold text-brand-ink"><i class="fa-solid fa-calculator text-brand-muted mr-2"></i>Presupuesto de cierre</h4>
+        <span class="pill bg-white border border-brand-border text-brand-muted">Junio 2026</span>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div class="flex justify-between border-b border-slate-100 pb-3">
+            <div><p class="text-sm font-bold">Mudanza logística (Fletes Velasco)</p><p class="text-[11px] text-brand-muted mt-1">Vaciado 3 pisos · 2 camiones</p></div>
+            <span class="number-font font-bold">$14,700</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-3">
+            <div><p class="text-sm font-bold">Entrega de inmueble</p><p class="text-[11px] text-brand-muted mt-1">Pintura, resanes y limpieza</p></div>
+            <span class="number-font font-bold">$13,450</span>
+          </div>
+          <div class="flex justify-between">
+            <div><p class="text-sm font-bold">Bodega resguardo · 50 m²</p><p class="text-[11px] text-brand-muted mt-1">Primer mes · zona Centro</p></div>
+            <span class="number-font font-bold">$4,500</span>
+          </div>
+        </div>
+
+        <div class="bg-brand-ink text-white p-5 rounded-2xl flex justify-between items-center mt-6">
+          <span class="font-bold text-sm tracking-wide">COSTO TOTAL DEL PROYECTO</span>
+          <span class="number-font text-2xl font-black">$32,650</span>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 p-5 rounded-2xl mt-5">
+          <h5 class="text-brand-red font-bold text-sm flex items-center gap-2 mb-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-red blink"></span> Imposibilidad de ejecución</h5>
+          <p class="text-xs text-red-900/80 leading-relaxed">Con saldo BBVA de $120.54 y caja chica $0, la ejecución es matemáticamente imposible sin inyección de capital (donación, rescate FEDAFM o cobranza extraordinaria).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2 space-y-4">
+      <h4 class="font-bold text-brand-ink text-xs uppercase tracking-widest px-1">Directorio validado</h4>
+      <div class="card p-5">
+        <div class="flex justify-between items-start"><h5 class="font-bold text-brand-ink">Fletes Velasco</h5><span class="pill bg-emerald-50 text-emerald-700 border border-emerald-200">★ 4.8</span></div>
+        <p class="text-[11px] font-mono text-brand-muted mt-1">+52 967 107 2789</p>
+        <p class="text-xs text-brand-text mt-3 leading-relaxed">Capacidad para mobiliario pesado (mediateca/biblioteca) en calles céntricas.</p>
+      </div>
+      <div class="card p-5">
+        <div class="flex justify-between items-start"><h5 class="font-bold text-brand-ink">Coldwell Banker</h5><span class="pill bg-emerald-50 text-emerald-700 border border-emerald-200">★ 5.0</span></div>
+        <p class="text-[11px] font-mono text-brand-muted mt-1">+52 967 688 2615</p>
+        <p class="text-xs text-brand-text mt-3 leading-relaxed">Alquiler de bodega para resguardo patrimonial.</p>
+      </div>
+      <div class="rounded-2xl p-6 text-white bg-gradient-to-br from-brand-navy to-brand-ink shadow-glow-navy relative overflow-hidden">
+        <div class="absolute -right-2 -bottom-2 text-white/10 text-7xl"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h5 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-shield-halved text-blue-300"></i> Salvaguarda Pedagógica</h5>
+        <p class="text-xs text-blue-100 mt-3 leading-relaxed">El cierre del edificio NO suspende la actividad. Híbrido vía plataforma Acadómico. La AFSC conserva derecho exclusivo DELF/DALF en Chiapas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-brand-border">
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-brand-muted">
+    <p>© 2026 · Alianza Francesa de San Cristóbal · Documento confidencial uso interno</p>
+    <p class="font-mono">Build forense-v2026.06 · Trazabilidad notarial habilitada</p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   MOTOR DE DATOS CENTRAL (single source of truth)
+   ============================================================ */
+const AFSC = {
+  bank: { account: '0186832806', balance: 120.54, lastUpdate: '2026-06-03' },
+  cash: 0,
+  patrimony: -156798,
+  liabilities: { fedafm: 161216.22, payroll: 119209 + 64782, ssTotal: 141339.63 },
+  monthly: {
+    income:   { ene: 95670, feb: 60398, mzo: 48850, abr: 22130, may: 59615 },
+    expense:  { ene: 76166, feb: 76188, mzo: 57536, abr: 28396, may: 53079 },
+    moves:    { ene: 139, feb: 80, mzo: 47, abr: 38, may: 103 }
+  },
+  fixedCosts: {
+    rent: 35000, payroll: 35335, contab: 2601, services: 4500, platform: 1600
+  },
+  cfdiCoverage: 0.135
+};
+
+/* ============================================================
+   LIVE PANEL · evaluarSistema()
+   ============================================================ */
+function evaluarSistema() {
+  const balance = AFSC.bank.balance + AFSC.cash;
+  const burn = AFSC.fixedCosts.rent + AFSC.fixedCosts.payroll + AFSC.fixedCosts.contab + AFSC.fixedCosts.services + AFSC.fixedCosts.platform;
+  const runway = balance / burn;
+  const risk = Math.min(99, Math.round((1 - AFSC.cfdiCoverage)*70 + (balance < 500 ? 28 : 12)));
+
+  const label = document.getElementById('statusLabel');
+  const dot   = document.getElementById('statusDot');
+  if (balance < 500) {
+    label.textContent = 'Colapso Operativo'; label.className = 'text-xl font-black text-brand-red';
+    dot.className = 'w-2.5 h-2.5 rounded-full bg-brand-ember blink';
+  } else if (balance < 25000) {
+    label.textContent = 'Riesgo Crítico'; label.className = 'text-xl font-black text-amber-600';
+    dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 blink';
+  } else {
+    label.textContent = 'Estable'; label.className = 'text-xl font-black text-emerald-700';
+    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+  }
+  document.getElementById('liveBalance').textContent = '$' + balance.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('liveRunway').textContent  = runway.toFixed(2) + ' m';
+  document.getElementById('liveRisk').textContent    = risk + '%';
+  document.getElementById('riskBar').style.width     = risk + '%';
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b => b.className = 'tabbtn whitespace-nowrap px-4 py-2 text-xs font-medium rounded-lg text-slate-500 hover:bg-slate-200/60');
+  setTimeout(() => document.getElementById('tab-'+id).classList.add('active'), 40);
+  document.getElementById('btn-'+id).className = 'tabbtn whitespace-nowrap px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-brand-darkred';
+}
+
+/* ============================================================
+   AUDIO ENGINE · Tone.js drone forense
+   ============================================================ */
+let audioStarted = false; let drone = null;
+document.getElementById('audioToggle').addEventListener('click', async () => {
+  if (!audioStarted) {
+    await Tone.start();
+    const reverb = new Tone.Reverb({ decay: 8, wet: 0.55 }).toDestination();
+    const filter = new Tone.Filter(220, 'lowpass').connect(reverb);
+    drone = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sine' }, envelope: { attack: 4, release: 6, sustain: 1 }, volume: -28 }).connect(filter);
+    drone.triggerAttack(['C2','G2','Eb3']);
+    audioStarted = true;
+    document.getElementById('audioToggle').innerHTML = '<i class="fa-solid fa-wave-square mr-1"></i> Drone ON';
+  } else {
+    drone.releaseAll();
+    audioStarted = false;
+    document.getElementById('audioToggle').innerHTML = '<i class="fa-solid fa-wave-square mr-1"></i> Drone OFF';
+  }
+});
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = '#64748B';
+
+  /* Sparkline saldo */
+  new Chart(document.getElementById('spark1'), {
+    type: 'line',
+    data: { labels:['E','F','M','A','M','J'], datasets:[{ data:[26940,11150,2464,5.4,6541,120.54], borderColor:'#002654', backgroundColor:'rgba(0,38,84,.08)', borderWidth:2, fill:true, tension:0.35, pointRadius:0 }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+  });
+
+  /* Chart principal */
+  const ctx = document.getElementById('chartMain').getContext('2d');
+  const gIn  = ctx.createLinearGradient(0,0,0,300); gIn.addColorStop(0,'#0B1220'); gIn.addColorStop(1,'#334155');
+  const gOut = ctx.createLinearGradient(0,0,0,300); gOut.addColorStop(0,'#991B1B'); gOut.addColorStop(1,'#DC2626');
+  new Chart(ctx, {
+    type:'bar',
+    data: {
+      labels:['Enero','Febrero','Marzo','Abril','Mayo'],
+      datasets:[
+        { label:'Ingresos', data:[95670,60398,48850,22130,59615], backgroundColor:gIn, borderRadius:6, categoryPercentage:.7, barPercentage:.7 },
+        { label:'Egresos · costos fijos', data:[76166,76188,57536,28396,53079], backgroundColor:gOut, borderRadius:6, categoryPercentage:.7, barPercentage:.7 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      scales:{ y:{ beginAtZero:true, grid:{color:'#F1F5F9'}, ticks:{ callback:v=>'$'+(v/1000)+'k', font:{family:"'JetBrains Mono', monospace"} }, border:{display:false}}, x:{ grid:{display:false}, border:{display:false}, ticks:{font:{weight:'600'}}}},
+      plugins:{ legend:{ position:'top', align:'end', labels:{usePointStyle:true, boxWidth:8}}, tooltip:{backgroundColor:'#0B1220', padding:12, cornerRadius:8, bodyFont:{family:"'JetBrains Mono', monospace"}, callbacks:{ label:c=>' '+c.dataset.label+': $'+c.raw.toLocaleString('es-MX')+' MXN'}}}
+    }
+  });
+
+  /* Chart mayo · doughnut */
+  new Chart(document.getElementById('chartMay'), {
+    type:'doughnut',
+    data:{
+      labels:['Renta fraccionada','Micro-abonos dirección','Plataforma Acadómico','Honorarios docentes','Otros operativos'],
+      datasets:[{ data:[15200,13845,1600,15500,6934], backgroundColor:['#991B1B','#DC2626','#B45309','#002654','#94A3B8'], borderWidth:0 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ position:'right', labels:{boxWidth:10, padding:14, font:{size:11}}}, tooltip:{ callbacks:{ label:c=>' '+c.label+': $'+c.raw.toLocaleString('es-MX')}}}}
+  });
+
+  /* Chart simulador · línea de saldo */
+  window.simChart = new Chart(document.getElementById('chartSim'), {
+    type:'line',
+    data: { labels:['M0','M1','M2','M3','M4','M5','M6'], datasets:[{ data:[120.54,0,0,0,0,0,0], borderColor:'#002654', backgroundColor:'rgba(0,38,84,.08)', borderWidth:2.5, fill:true, tension:0.32, pointRadius:3, pointBackgroundColor:'#002654' }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0B1220', bodyFont:{family:"'JetBrains Mono', monospace"}, callbacks:{ label:c=>' Saldo: $'+c.raw.toLocaleString('es-MX',{maximumFractionDigits:0}) }}}, scales:{ y:{ grid:{color:'#F1F5F9'}, ticks:{ callback:v=>'$'+(v/1000).toFixed(0)+'k', font:{family:"'JetBrains Mono', monospace"}}, border:{display:false}}, x:{ grid:{display:false}, border:{display:false}}}}
+  });
+
+  evaluarSistema();
+  initSimulator();
+});
+
+/* ============================================================
+   SIMULADOR ESTRATÉGICO · recálculo en vivo
+   ============================================================ */
+function initSimulator() {
+  const ranges = ['rent','payroll','capital','income'].map(k => document.getElementById(k+'Range'));
+  ranges.forEach(r => r.addEventListener('input', updateSim));
+  updateSim();
+}
+function updateSim() {
+  const rent = +document.getElementById('rentRange').value;
+  const payroll = +document.getElementById('payrollRange').value;
+  const capital = +document.getElementById('capitalRange').value;
+  const income = +document.getElementById('incomeRange').value;
+
+  document.getElementById('rentVal').textContent    = '$' + rent.toLocaleString('es-MX');
+  document.getElementById('payrollVal').textContent = '$' + payroll.toLocaleString('es-MX');
+  document.getElementById('capitalVal').textContent = '$' + capital.toLocaleString('es-MX');
+  document.getElementById('incomeVal').textContent  = '$' + income.toLocaleString('es-MX');
+
+  const fixedOther = AFSC.fixedCosts.contab + AFSC.fixedCosts.services + AFSC.fixedCosts.platform;
+  const burn = income - (rent + payroll + fixedOther);
+  const startCash = AFSC.bank.balance + AFSC.cash + capital;
+  let runway;
+  if (burn >= 0) runway = Infinity;
+  else runway = startCash / Math.abs(burn);
+
+  document.getElementById('simBurn').textContent = (burn>=0?'+':'−') + '$' + Math.abs(burn).toLocaleString('es-MX', {maximumFractionDigits:0});
+  document.getElementById('simBurn').className = 'number-font text-lg font-black mt-1 ' + (burn>=0 ? 'text-emerald-300' : 'text-brand-ember');
+
+  const runwayLabel = (runway===Infinity) ? '∞' : runway.toFixed(2);
+  document.getElementById('simRunway').innerHTML = runwayLabel + ' <span class="text-lg text-slate-400">meses</span>';
+
+  let risk;
+  if (burn >= 0 && startCash > 50000) risk = 22;
+  else if (burn >= 0) risk = 45;
+  else if (runway > 6) risk = 55;
+  else if (runway > 3) risk = 72;
+  else if (runway > 1) risk = 86;
+  else risk = 98;
+  document.getElementById('simRisk').textContent = risk + '%';
+  document.getElementById('simRiskBar').style.width = risk + '%';
+
+  let verdict;
+  if (rent === 0 && burn >= 0) verdict = 'Escenario óptimo: extra-muros + nómina ajustada. La A.C. sobrevive y conserva derechos DELF/DALF.';
+  else if (rent === 0) verdict = 'Sin renta, el burn baja drásticamente. Falta ajustar nómina o aumentar ingresos para alcanzar punto de equilibrio.';
+  else if (burn >= 0) verdict = 'Punto de equilibrio alcanzado bajo los parámetros actuales. Verificar sostenibilidad de los ingresos proyectados.';
+  else if (runway < 1) verdict = 'Colapso inminente. La única palanca con impacto material es eliminar la renta sin CFDI.';
+  else verdict = 'Operación posible en el corto plazo pero insostenible. Requiere cobranza extraordinaria o donación.';
+  document.getElementById('simVerdict').textContent = verdict;
+
+  /* Proyección de saldo */
+  const series = [startCash];
+  for (let i=1;i<=6;i++) series.push(Math.max(0, series[i-1] + burn));
+  simChart.data.datasets[0].data = series;
+  simChart.data.datasets[0].borderColor = burn>=0 ? '#047857' : '#991B1B';
+  simChart.data.datasets[0].backgroundColor = burn>=0 ? 'rgba(4,120,87,.10)' : 'rgba(153,27,27,.10)';
+  simChart.data.datasets[0].pointBackgroundColor = burn>=0 ? '#047857' : '#991B1B';
+  simChart.update();
+}
+</script>
+</body>
+</html>
